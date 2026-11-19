@@ -1,19 +1,23 @@
+cat << 'EOF' > Dockerfile
 FROM php:8.4-cli
 
-# Install sistem dependencies, ekstensi PHP untuk Laravel & MySQL, serta Node.js
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev nodejs npm \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    git unzip libzip-dev libpng-dev libonig-dev libxml2-dev curl \
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+WORKDIR /var/www/html
 COPY . .
 
-# Install dependency Laravel & Build asset Tailwind/Vite
-RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
+RUN rm -f public/hot \
+    && composer install --no-dev --optimize-autoloader \
+    && npm install \
+    && npm run build \
+    && chmod -R 775 storage bootstrap/cache
 
-# Jalankan migrasi, storage link, dan server saat container menyala
-CMD sh -c "php artisan migrate --force ; php artisan storage:link ; php artisan config:clear && php artisan view:clear && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+CMD sh -c "php artisan config:clear ; php artisan view:clear ; php artisan migrate --force ; php artisan storage:link ; php -S 0.0.0.0:${PORT:-8080} -t public"
+EOF
