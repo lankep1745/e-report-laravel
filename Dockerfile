@@ -1,4 +1,3 @@
-cat << 'EOF' > Dockerfile
 FROM php:8.4-cli
 
 RUN apt-get update && apt-get install -y \
@@ -20,4 +19,3 @@ RUN rm -f public/hot \
     && chmod -R 775 storage bootstrap/cache
 
 CMD sh -c "php artisan config:clear ; php artisan view:clear ; php artisan migrate --force ; php artisan storage:link ; php -S 0.0.0.0:${PORT:-8080} -t public"
-EOF
