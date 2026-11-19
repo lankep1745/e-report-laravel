@@ -1,4 +1,4 @@
-FROM php:8.3-cli
+FROM php:8.4-cli
 
 # Install sistem dependencies, ekstensi PHP untuk Laravel & MySQL, serta Node.js
 RUN apt-get update && apt-get install -y \
