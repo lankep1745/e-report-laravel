@@ -16,4 +16,4 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 
 # Jalankan migrasi, storage link, dan server saat container menyala
-CMD sh -c "php artisan migrate --force && php artisan storage:link ; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+CMD sh -c "php artisan migrate --force ; php artisan storage:link ; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
